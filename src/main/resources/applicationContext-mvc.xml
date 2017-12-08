@@ -15,10 +15,7 @@
 	<!-- <mvc:annotation-driven /> -->
 	<context:component-scan base-package="com.hxb.controller" />
 	<!--  配置视图解析器 -->
-	<!-- <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<property name="prefix" value="/"/>
-		<property name="suffix" value=".jsp"/>
-	</bean> -->
+
 	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
 		<property name="favorParameter" value="true" />
 		<property name="defaultContentType" value="text/html" />
