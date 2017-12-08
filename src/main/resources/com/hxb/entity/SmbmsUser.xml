@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hxb.dao.SmbmsUserDao">
+	<!-- 用户登录 -->
+	<select id="login" parameterType="SmbmsUser" resultType="SmbmsUser">
+		SELECT * FROM smbms_user WHERE userCode=#{userCode} AND userPassword=#{userPassword}
+	</select>
+	
+	<!-- (2)得到总用户总记录数 -->
+	<select id="getUserRows" resultType="int">
+		SELECT count(1) FROM smbms_user u INNER JOIN smbms_role r ON u.userRole=r.id
+		<trim prefix="where" prefixOverrides="and | or">
+			<if test="userName !=null and userName != ''">and userName like concat('%',#{userName},'%')</if>
+			<if test="userRole !=null and userRole != 0">and userRole =#{userRole}</if>
+		</trim>
+	</select>
+	
+	<!-- (3)分页显示用户信息 -->
+	<select id="getSmbmsUserPage" resultType="SmbmsUser">
+		SELECT u.*,r.roleCode,r.roleName FROM smbms_user u INNER JOIN smbms_role r ON u.userRole=r.id
+		<trim prefix="where" prefixOverrides="and | or">
+			<if test="userName !=null and userName != ''">and userName like concat('%',#{userName},'%')</if>
+			<if test="userRole !=null and userRole != 0">and userRole =#{userRole}</if>
+		</trim>
+		LIMIT #{currentNo},#{pageSize}
+	</select>
+	
+	<!-- (4)添加用户 -->
+	<insert id="addSmbmsUser" parameterType="SmbmsUser">
+			INSERT INTO smbms_user
+					VALUES (#{id},#{userCode},#{userName},#{userPassword},
+					        #{gender},#{birthday},#{phone},#{address},
+					        #{userRole},#{createdBy},#{creationDate},
+					        #{modifyBy},#{modifyDate},#{photoPath});
+	</insert>
+	
+	<!-- （5）通过用户id得到用户信息 -->
+	<select id="getSmbmsUserById" parameterType="Long" resultType="SmbmsUser">
+		<!-- select * from smbms_user where id=#{id} -->
+		SELECT u.*,r.roleName FROM smbms_user u INNER JOIN smbms_role r ON u.userRole=r.id where u.id=#{id}
+	</select>
+	
+	<!--(6)修改用户信息-->
+	<update id="updateSmbmsUser" parameterType="SmbmsUser">
+		UPDATE smbms_user
+		<trim prefix="set" suffixOverrides="," suffix="where id=#{id}">
+			<if test="userCode!=null"> userCode = #{userCode},</if>
+			<if test="userName!=null"> userName = #{userName},</if>
+			<if test="userPassword!=null"> userPassword = #{userPassword},</if>
+			<if test="gender!=null"> gender = #{gender},</if>
+			<if test="birthday!=null"> birthday = #{birthday},</if>
+			<if test="phone!=null"> phone = #{phone},</if>
+			<if test="address!=null">address = #{address},</if>
+			<if test="userRole!=null">userRole = #{userRole},</if>
+			<if test="createdBy!=null"> createdBy = #{createdBy},</if>
+			<if test="creationDate!=null">creationDate = #{creationDate},</if>
+			<if test="modifyBy!=null">modifyBy = #{modifyBy},</if>
+			<if test="modifyDate!=null">modifyDate = #{modifyDate}</if>
+		</trim>
+	</update>
+	
+	<!-- (7)根据userCode查询出User -->
+	<select id="getLoginUser" parameterType="string" resultType="SmbmsUser">
+		select * from smbms_user where userCode=#{userCode}
+	</select>
+	
+	<!-- (8)删除用户信息 -->
+	<delete id="deleteUserById" parameterType="Long">
+		delete from smbms_user where id=#{id}
+	</delete>
+	<!-- (9)根据用户id修改用户密码 -->
+	<update id="updatePwd" parameterType="SmbmsUser">
+		UPDATE smbms_user
+		set userPassword = #{userPassword}
+		where id=#{id}
+	</update>
+	
+</mapper>

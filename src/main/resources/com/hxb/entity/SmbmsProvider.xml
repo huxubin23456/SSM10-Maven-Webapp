@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hxb.dao.SmbmsProviderDao">
+
+	<!-- （1）得到供应商总页数 -->
+	<select id="getProviderRows" resultType="int">
+		SELECT COUNT(1) FROM smbms_provider
+		<trim prefix="where" prefixOverrides="and | or">
+			<if test="proCode != null and proCode !=''">and proCode like concat('%',#{proCode},'%')</if>
+			<if test="proName != null and proName !=''">and proName like concat('%',#{proName},'%')</if>
+		</trim>
+	</select>
+
+
+	<!-- （2）得到分页后的供应商信息 -->
+	<select id="getSmbmsProviderList" resultType="SmbmsProvider">
+		SELECT * FROM smbms_provider
+		<trim prefix="where" prefixOverrides="and | or">
+			<if test="proCode != null and proCode !=''">and proCode like concat('%',#{proCode},'%')</if>
+			<if test="proName != null and proName !=''">and proName like concat('%',#{proName},'%')</if>
+		</trim>
+		limit #{currentNo},#{pageSize}
+	</select>
+
+	<!-- (3)添加供应商 -->
+	<insert id="addSmbmsProvider" parameterType="SmbmsProvider">
+		INSERT INTO smbms_provider
+					VALUES (#{id},#{proCode},#{proName},#{proDesc},
+							#{proContact},#{proPhone},#{proAddress},
+							#{proFax},#{createdBy},#{creationDate},
+							#{modifyDate},#{modifyBy},#{enterPrise},#{planner});
+	</insert>
+
+	<!-- （4）根据供应商编号得到供应商信息-->
+	<select id="getProviderById" parameterType="Long" resultType="SmbmsProvider">
+		SELECT * FROM smbms_provider where id=#{id}
+	</select>
+	<!-- （5）修改供应商信息 -->
+	<update id="updateSmbmsProvider" parameterType="SmbmsProvider">
+		UPDATE smbms_provider
+		<trim prefix="set" suffixOverrides="," suffix="where id=#{id}">
+			<if test="proCode != null">proCode = #{proCode},</if>
+			<if test="proName != null">proName = #{proName},</if>
+			<if test="proDesc != null">proDesc = #{proDesc},</if>
+			<if test="proContact != null">proContact = #{proContact},</if>
+			<if test="proPhone != null">proPhone = #{proPhone},</if>
+			<if test="proAddress != null">proAddress = #{proAddress},</if>
+			<if test="proFax != null">proFax = #{proFax},</if>
+			<if test="createdBy != null">createdBy = #{createdBy},</if>
+			<if test="creationDate != null">creationDate = #{creationDate},</if>
+			<if test="modifyDate != null">modifyDate = #{modifyDate},</if>
+			<if test="modifyBy != null">modifyBy = #{modifyBy}</if>
+		</trim>
+	</update>
+
+	<delete id="deleteSmbmsProvider" parameterType="Long">
+		delete from
+		smbms_provider where id=#{id}
+	</delete>
+
+
+	<!--(7)得到供应商名称列表  -->
+	<select id="getProviderList" resultType="SmbmsProvider">
+		SELECT DISTINCT id,proName FROM smbms_provider
+	</select>
+
+</mapper>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+       <!-- 配置处理器映射 HandlerMapping -->
+	<!-- <mvc:annotation-driven /> -->
+	<context:component-scan base-package="com.hxb.controller" />
+	<!--  配置视图解析器 -->
+	<!-- <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/"/>
+		<property name="suffix" value=".jsp"/>
+	</bean> -->
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="favorParameter" value="true" />
+		<property name="defaultContentType" value="text/html" />
+		<property name="mediaTypes">
+			<map>
+				<entry key="html" value="text/html;charset=UTF-8" />
+				<entry key="json" value="application/json;charset=UTF-8" />
+				<entry key="xml" value="application/xml;charset=UTF-8" />
+			</map>
+		</property>
+		<property name="viewResolvers">
+			<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+				<property name="prefix" value="/" />
+				<property name="suffix" value=".jsp" />
+			</bean>
+		</property>
+		<property name="defaultViews">
+			<list>
+				<!-- jackson -->
+				<bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView" />
+				<!-- xml视图，XStreamMarshaller，可以转换任何形式的java对象，需要添加xStream jar包 -->
+				<bean name="xStreamMarshallingView" class="org.springframework.web.servlet.view.xml.MarshallingView">
+				    <property name="marshaller">
+				        <bean class="org.springframework.oxm.xstream.XStreamMarshaller">  
+			               	<!--  启用annotation -->
+			               	<!-- <property name="autodetectAnnotations" value="true"/>  --> 
+			               	<!-- 类名别名 -->
+				            <!--  <property name="aliases">
+				                <map>
+				                    Account这个类的别名就变成了myBeans，那么转换后的xml中就是myBeans
+				                    <entry key="SmbmsRole" value="com.tcf.entity.SmbmsRole"/>
+				                </map>
+				            </property> -->
+				            <!-- 基本属性别名 -->
+				            <!-- <property name="fieldAliases">
+				                <map>
+				                    Account中的brithday这个属性
+				                    <entry key="com.hoo.entity.Account.brithday" value="生日"/>
+				                </map>
+				            </property> -->
+				           </bean>  
+				    </property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	<mvc:default-servlet-handler/>
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="5000000"/>
+		<property name="defaultEncoding" value="UTF-8"/>
+	</bean>
+	<!-- JSON处理中文乱码 -->
+	<mvc:annotation-driven>
+		<mvc:message-converters>
+			<!-- fastjson日期转换器 -->
+			<bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<value>text/html;charset=UTF-8</value>
+						<value>application/json;charset=UTF-8</value>
+					</list>
+				</property>
+				<property name="features">
+					<list>
+						<value>WriteDateUseDateFormat</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+	<!-- 自定义日期转换器 -->
+	<bean id="conversionServiceFactoryBean" class="org.springframework.context.support.ConversionServiceFactoryBean">
+		<property name="converters">
+			<list>
+				<!-- <bean class="com.hxb.convertor.StringToDateConvertor">
+					<constructor-arg value="yyyy-MM-dd" />
+				</bean> -->
+			</list>
+		</property>
+	</bean>
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**/*.do"/>
+			<bean class="com.hxb.interceptor.UserInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+</beans>
